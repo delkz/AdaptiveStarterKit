@@ -1,0 +1,13 @@
+Sandbox_EN = {
+    Sandbox_AdaptiveStarterKit = "Adaptive Starter Kit",
+    Sandbox_AdaptiveStarterKit_Enabled = "Enable adaptive starter kits",
+    Sandbox_AdaptiveStarterKit_Tier2Day = "Basic supplies start day",
+    Sandbox_AdaptiveStarterKit_Tier3Day = "Improvised survivor kit start day",
+    Sandbox_AdaptiveStarterKit_Tier4Day = "Established survivor kit start day",
+    Sandbox_AdaptiveStarterKit_Tier5Day = "Experienced survivor kit start day",
+    Sandbox_AdaptiveStarterKit_Tier6Day = "Veteran survivor kit start day",
+    Sandbox_AdaptiveStarterKit_SupplyMultiplier = "Supply quantity multiplier",
+    Sandbox_AdaptiveStarterKit_FirearmChance = "Veteran firearm chance (%)",
+    Sandbox_AdaptiveStarterKit_Debug = "Print diagnostic messages",
+}
+

@@ -1,0 +1,79 @@
+VERSION = 1,
+
+option AdaptiveStarterKit.Enabled {
+    type = boolean,
+    default = true,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_Enabled,
+}
+
+option AdaptiveStarterKit.Tier2Day {
+    type = integer,
+    min = 1,
+    max = 30,
+    default = 4,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_Tier2Day,
+}
+
+option AdaptiveStarterKit.Tier3Day {
+    type = integer,
+    min = 2,
+    max = 60,
+    default = 8,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_Tier3Day,
+}
+
+option AdaptiveStarterKit.Tier4Day {
+    type = integer,
+    min = 3,
+    max = 120,
+    default = 15,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_Tier4Day,
+}
+
+option AdaptiveStarterKit.Tier5Day {
+    type = integer,
+    min = 4,
+    max = 365,
+    default = 31,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_Tier5Day,
+}
+
+option AdaptiveStarterKit.Tier6Day {
+    type = integer,
+    min = 5,
+    max = 3650,
+    default = 61,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_Tier6Day,
+}
+
+option AdaptiveStarterKit.SupplyMultiplier {
+    type = double,
+    min = 0.5,
+    max = 3.0,
+    default = 1.0,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_SupplyMultiplier,
+}
+
+option AdaptiveStarterKit.FirearmChance {
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 10,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_FirearmChance,
+}
+
+option AdaptiveStarterKit.Debug {
+    type = boolean,
+    default = false,
+    page = AdaptiveStarterKit,
+    translation = AdaptiveStarterKit_Debug,
+}
+
