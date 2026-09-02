@@ -1,0 +1,12 @@
+{
+    "Sandbox_AdaptiveStarterKit": "Kit inicial adaptativo",
+    "Sandbox_AdaptiveStarterKit_Enabled": "Ativar kits iniciais adaptativos",
+    "Sandbox_AdaptiveStarterKit_Tier2Day": "Dia inicial dos suprimentos basicos",
+    "Sandbox_AdaptiveStarterKit_Tier3Day": "Dia inicial do kit improvisado",
+    "Sandbox_AdaptiveStarterKit_Tier4Day": "Dia inicial do kit estabelecido",
+    "Sandbox_AdaptiveStarterKit_Tier5Day": "Dia inicial do kit experiente",
+    "Sandbox_AdaptiveStarterKit_Tier6Day": "Dia inicial do kit veterano",
+    "Sandbox_AdaptiveStarterKit_SupplyMultiplier": "Multiplicador da quantidade de suprimentos",
+    "Sandbox_AdaptiveStarterKit_FirearmChance": "Chance de arma de fogo veterana (%)",
+    "Sandbox_AdaptiveStarterKit_Debug": "Exibir mensagens de diagnostico"
+}

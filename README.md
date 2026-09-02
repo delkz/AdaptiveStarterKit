@@ -1,53 +1,59 @@
 # Adaptive Starter Kit (Build 42)
 
-Um mod para Project Zomboid que fornece a personagens novos um kit inicial coerente com o tempo decorrido no mundo.
+Adaptive Starter Kit is a Project Zomboid mod that gives new characters a starter kit matched to the age of the world. Fresh worlds stay harsh, while late spawns get a small, believable chance to begin with worn survival gear.
 
-## Progressão padrão
+## Default Progression
 
-| Idade do mundo | Kit possível |
+| World age | Possible kit |
 | --- | --- |
-| 0–3 dias | Nenhum item |
-| 4–7 dias | Água e um lanche simples |
-| 8–14 dias | Mochila escolar, água, comida e arma improvisada |
-| 15–30 dias | Mochila, suprimentos médicos, comida e arma corpo a corpo usada |
-| 31–60 dias | Mochila melhor, ferramentas, suprimentos e arma usada |
-| 61+ dias | Kit de sobrevivente; pequena chance de arma de fogo |
+| 0-3 days | No items |
+| 4-7 days | Water and a simple snack |
+| 8-14 days | School bag, water, food, and an improvised weapon |
+| 15-30 days | Bag, medical supplies, food, and a worn melee weapon |
+| 31-60 days | Better bag, tools, supplies, and a worn weapon |
+| 61+ days | Survivor kit with a small firearm chance |
 
-Os itens com condição possuem desgaste aleatório. Armas de fogo não recebem munição por padrão, mantendo a morte relevante.
+Items with condition have randomized wear. Firearms do not include ammo by default, so the kit helps late spawns without removing the risk from a run.
 
-## Instalação local
+## Local Installation
 
-1. Extraia a pasta `AdaptiveStarterKit` em:
-   `C:\Users\SEU_USUARIO\Zomboid\mods\`
-2. Ative **Adaptive Starter Kit** no menu de mods.
-3. Ao criar um mundo, procure a seção **Adaptive Starter Kit** nas opções Sandbox.
+1. Extract the `AdaptiveStarterKit` folder into:
+   `C:\Users\YOUR_USER\Zomboid\mods\`
+2. Enable **Adaptive Starter Kit** in the mods menu.
+3. When creating a world, open the **Adaptive Starter Kit** section in the Sandbox options.
 
-## Servidor dedicado
+## Dedicated Server
 
-Copie `AdaptiveStarterKit` para a pasta de mods do servidor e adicione:
+Copy `AdaptiveStarterKit` to the server's mods folder and add:
 
 ```ini
 Mods=AdaptiveStarterKit
 ```
 
-Se publicar no Steam Workshop, adicione também o respectivo Workshop ID em `WorkshopItems`.
+When using the Steam Workshop version, also add its Workshop ID to `WorkshopItems`.
 
-## Configuração
+## Configuration
 
-As opções Sandbox permitem:
+Sandbox options let you:
 
-- ativar ou desativar o mod;
-- escolher os dias que separam os seis estágios;
-- multiplicar a quantidade de suprimentos;
-- definir a chance de arma de fogo no estágio final;
-- ativar mensagens de diagnóstico no console.
+- enable or disable the mod;
+- choose the start day for each kit tier;
+- scale the amount of consumable supplies;
+- set the final-tier firearm chance;
+- print diagnostic messages to the console.
 
-Alterar os limites afeta somente personagens criados depois da mudança.
+Set **Basic supplies start day** to `0` if you want new characters to receive the first kit on the first world day.
 
-## Observações
+Changing the tier thresholds only affects characters created after the change.
 
-- Cada personagem recebe o kit apenas uma vez.
-- O mod usa apenas itens vanilla.
-- Em multiplayer, o estágio é baseado na idade do mundo do servidor.
-- O código do kit está em `42/media/lua/client/ASK_Main.lua` e pode ser ajustado facilmente.
+## Notes
 
+- Each character receives a kit only once.
+- The mod uses vanilla items only.
+- Starter backpacks are equipped on the character's back when that slot is available.
+- In multiplayer, the kit tier is based on the server world's age.
+- Kit contents are defined in `42/media/lua/shared/ASK_Kits.lua` for easy tuning.
+
+## Contributing
+
+This mod is open source. If you have improvements, fixes, balancing changes, or compatibility updates, please open a pull request.

@@ -9,7 +9,7 @@ option AdaptiveStarterKit.Enabled {
 
 option AdaptiveStarterKit.Tier2Day {
     type = integer,
-    min = 1,
+    min = 0,
     max = 30,
     default = 4,
     page = AdaptiveStarterKit,
@@ -76,4 +76,3 @@ option AdaptiveStarterKit.Debug {
     page = AdaptiveStarterKit,
     translation = AdaptiveStarterKit_Debug,
 }
-
