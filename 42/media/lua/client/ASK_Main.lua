@@ -14,4 +14,11 @@ local function onCreatePlayer(_playerIndex, player)
     ASK.grantToPlayer(player)
 end
 
+local function onServerCommand(module, command, args)
+    if module ~= ASK.MOD_ID or command ~= ASK.COMMAND_SHOW_MESSAGE then return end
+
+    ASK.showPlayerMessage(getPlayer(), args and args.message)
+end
+
 Events.OnCreatePlayer.Add(onCreatePlayer)
+Events.OnServerCommand.Add(onServerCommand)

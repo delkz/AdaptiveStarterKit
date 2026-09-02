@@ -1,6 +1,11 @@
 Sandbox_PTBR = {
     Sandbox_AdaptiveStarterKit = "Kit inicial adaptativo",
     Sandbox_AdaptiveStarterKit_Enabled = "Ativar kits iniciais adaptativos",
+    Sandbox_AdaptiveStarterKit_DifficultyPreset = "Preset de dificuldade (1 Duro, 2 Balanceado, 3 Generoso)",
+    Sandbox_AdaptiveStarterKit_EquipBackpack = "Equipar mochila inicial",
+    Sandbox_AdaptiveStarterKit_ProfessionTweaks = "Ajustes de kit por profissao",
+    Sandbox_AdaptiveStarterKit_RoughItems = "Usar itens gastos e incompletos",
+    Sandbox_AdaptiveStarterKit_ShowMessage = "Mostrar mensagem do kit inicial",
     Sandbox_AdaptiveStarterKit_Tier2Day = "Dia inicial dos suprimentos básicos",
     Sandbox_AdaptiveStarterKit_Tier3Day = "Dia inicial do kit improvisado",
     Sandbox_AdaptiveStarterKit_Tier4Day = "Dia inicial do kit estabelecido",

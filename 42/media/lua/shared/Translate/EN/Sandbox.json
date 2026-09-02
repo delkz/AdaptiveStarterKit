@@ -1,6 +1,11 @@
 {
     "Sandbox_AdaptiveStarterKit": "Adaptive Starter Kit",
     "Sandbox_AdaptiveStarterKit_Enabled": "Enable adaptive starter kits",
+    "Sandbox_AdaptiveStarterKit_DifficultyPreset": "Difficulty preset (1 Harsh, 2 Balanced, 3 Generous)",
+    "Sandbox_AdaptiveStarterKit_EquipBackpack": "Equip starter backpack",
+    "Sandbox_AdaptiveStarterKit_ProfessionTweaks": "Profession-based kit touches",
+    "Sandbox_AdaptiveStarterKit_RoughItems": "Use rough and incomplete items",
+    "Sandbox_AdaptiveStarterKit_ShowMessage": "Show starter kit message",
     "Sandbox_AdaptiveStarterKit_Tier2Day": "Basic supplies start day",
     "Sandbox_AdaptiveStarterKit_Tier3Day": "Improvised survivor kit start day",
     "Sandbox_AdaptiveStarterKit_Tier4Day": "Established survivor kit start day",
