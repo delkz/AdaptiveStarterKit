@@ -53,8 +53,11 @@ end
 
 function ASK.addProfessionTouch(player, inventory, config, tier)
     local touch = getProfessionTouch(player, config)
-    if not touch or tier < 3 then return end
-    if not chance(professionTouchChance(tier)) then return end
+    ASK.log(config, "Profession bonus: enabled=" .. tostring(config.professionTweaks)
+        .. ", category=" .. tostring(touch) .. ", tier=" .. tier)
+    if not touch or tier < 3 then ASK.log(config, "Profession bonus skipped: no category or tier below 3."); return end
+    if not chance(professionTouchChance(tier)) then ASK.log(config, "Profession bonus skipped: chance rejected."); return end
+    ASK.log(config, "Profession bonus accepted; evaluating category item rules.")
 
     if touch == "medical" then
         if chance(65) then ASK.addPackedItem(config, inventory, "Base.Bandage") end
@@ -86,8 +89,10 @@ end
 
 function ASK.getProfessionFirearmChance(player, config)
     if getProfessionTouch(player, config) == "responder" and chance(professionTouchChance(6)) then
+        ASK.log(config, "Firearm chance: responder bonus applied; final=" .. math.min(100, config.firearmChance + 5))
         return math.min(100, config.firearmChance + 5)
     end
 
+    ASK.log(config, "Firearm chance: no profession bonus; final=" .. config.firearmChance)
     return config.firearmChance
 end

@@ -41,7 +41,7 @@ Sandbox options let you:
 - choose whether starter backpacks are equipped automatically;
 - enable small profession-based kit touches, which become less likely as the world gets older;
 - enable rough, partially used supplies;
-- show a short message when the starter kit is granted;
+- show a short message when starter supplies are actually granted;
 - choose the start day for each kit tier;
 - scale the amount of consumable supplies;
 - set the final-tier firearm chance;
@@ -62,6 +62,25 @@ Changing the tier thresholds only affects characters created after the change.
 - Kit tiers are defined in `42/media/lua/shared/ASK_Kits.lua`; item pools and profession rules are split into nearby shared files for easier tuning.
 
 ## Testing
+
+Detailed diagnostics are controlled by the Sandbox Debug option. Logs include execution side,
+step number, local grant ID, player event, network commands, effective settings, world age,
+grant flag, profession rules, random rolls, item pools, each item attempt and destination,
+wear, backpack equipment, synchronization, notification decisions, and final item counts.
+Grant IDs are local to each Lua runtime, not shared between client and server.
+Tier 1 explicitly reports that its empty kit is intentional. Item failures include the error
+or a nil-result reason and remain visible even with diagnostics disabled.
+
+On Windows, follow client/single-player output in PowerShell:
+
+```powershell
+Get-Content "$env:USERPROFILE\Zomboid\console.txt" -Tail 100 -Wait |
+    Select-String '\[AdaptiveStarterKit\]'
+```
+
+For multiplayer, inspect the server logs too: client logs show the request, while the server
+logs show item creation. A sent container update does not confirm receipt by the client.
+Registration messages appear only if Debug is already enabled when the scripts load.
 
 Enable **Print diagnostic messages** in the Sandbox options before using test commands.
 

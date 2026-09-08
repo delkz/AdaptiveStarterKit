@@ -53,7 +53,9 @@ ASK.KIT_POOLS = {
 ASK.KIT_UTILS = {}
 
 function ASK.KIT_UTILS.pick(items)
-    return items[ZombRand(#items) + 1]
+    local index = ZombRand(#items) + 1
+    ASK.log(nil, "Pool selection: size=" .. #items .. ", index=" .. index .. ", item=" .. tostring(items[index]))
+    return items[index]
 end
 
 function ASK.KIT_UTILS.addOneOf(inventory, items)
@@ -66,8 +68,10 @@ end
 
 function ASK.KIT_UTILS.addPackedFood(config, fallbackInventory, preferReadyToEat)
     if preferReadyToEat or ASK.chance(35) then
+        ASK.log(config, "Food pool: snacks; preferReadyToEat=" .. tostring(preferReadyToEat))
         return ASK.KIT_UTILS.addPackedOneOf(config, fallbackInventory, ASK.KIT_POOLS.snacks)
     end
 
+    ASK.log(config, "Food pool: cannedFood.")
     return ASK.KIT_UTILS.addPackedOneOf(config, fallbackInventory, ASK.KIT_POOLS.cannedFood)
 end

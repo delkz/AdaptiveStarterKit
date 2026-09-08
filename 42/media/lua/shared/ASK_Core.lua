@@ -78,8 +78,13 @@ function ASK.getSettings()
 end
 
 function ASK.log(config, message)
+    config = config or (ASK._grantContext and ASK._grantContext.config) or ASK.getSettings()
     if config.debug then
-        print("[AdaptiveStarterKit] " .. message)
+        ASK._logSequence = (ASK._logSequence or 0) + 1
+        local side = isServer and isServer() and "server" or (isClient and isClient() and "client" or "singleplayer")
+        local context = ASK._grantContext
+        print("[AdaptiveStarterKit] [" .. side .. "] [step=" .. ASK._logSequence
+            .. (context and " grant=" .. context.id or "") .. "] " .. message)
     end
 end
 
@@ -89,7 +94,12 @@ end
 
 local function transmitAddedItem(inventory, item)
     if item and isMultiplayerServer() and sendAddItemToContainer then
+        ASK.log(nil, "Sync item: sending container update.")
         sendAddItemToContainer(inventory, item)
+        ASK.log(nil, "Sync item: container update sent (not a client acknowledgement).")
+    else
+        ASK.log(nil, "Sync item skipped: item=" .. tostring(item ~= nil)
+            .. ", server=" .. tostring(isMultiplayerServer()) .. ", API=" .. tostring(sendAddItemToContainer ~= nil))
     end
 end
 
@@ -104,7 +114,11 @@ local function recordGrantedItem(item, destination)
 end
 
 function ASK.beginGrantContext(config, tier, worldDay, player)
+    ASK._grantSequence = (ASK._grantSequence or 0) + 1
     ASK._grantContext = {
+        id = ASK._grantSequence,
+        attempted = 0,
+        failed = 0,
         config = config,
         tier = tier,
         worldDay = worldDay,
@@ -129,15 +143,28 @@ local function summarizeGrantedItems()
     return table.concat(parts, ", ")
 end
 
+local function hasGrantedItems()
+    return ASK._grantContext and #ASK._grantContext.items > 0
+end
+
 function ASK.addItem(inventory, fullType, deferTransmit)
+    local context = ASK._grantContext
+    if context then context.attempted = context.attempted + 1 end
+    ASK.log(nil, "AddItem begin: type=" .. tostring(fullType)
+        .. ", destination=" .. (inventory == ASK._packedInventory and "backpack" or "inventory")
+        .. ", containerAvailable=" .. tostring(inventory ~= nil) .. ", deferSync=" .. tostring(deferTransmit == true))
     local ok, item = pcall(function()
         return inventory:AddItem(fullType)
     end)
 
     if not ok or not item then
-        print("[AdaptiveStarterKit] Could not add item: " .. tostring(fullType))
+        if context then context.failed = context.failed + 1 end
+        print("[AdaptiveStarterKit] Could not add item: " .. tostring(fullType)
+            .. "; reason=" .. (ok and "AddItem returned nil" or tostring(item)))
         return nil
     end
+
+    ASK.log(nil, "AddItem success: requested=" .. tostring(fullType))
 
     if not deferTransmit then
         transmitAddedItem(inventory, item)
@@ -160,7 +187,12 @@ function ASK.addUsed(inventory, fullType, minimumUses, maximumUses, config)
     if config.roughItems == true and ASK.chance(config.roughItemChance) and item.setUsedDelta then
         local minimum = clamp(numberOrDefault(minimumUses, 0.25), 0, 1)
         local maximum = clamp(numberOrDefault(maximumUses, 0.85), minimum, 1)
-        item:setUsedDelta(randomFloat(minimum, maximum))
+        local delta = randomFloat(minimum, maximum)
+        ASK.log(config, "Used supply: type=" .. fullType .. ", min=" .. minimum .. ", max=" .. maximum .. ", delta=" .. delta)
+        item:setUsedDelta(delta)
+    else
+        ASK.log(config, "Used supply unchanged: type=" .. fullType .. ", roughItems=" .. tostring(config.roughItems)
+            .. ", setterAvailable=" .. tostring(item.setUsedDelta ~= nil) .. "; disabled, roll rejected, or unsupported.")
     end
 
     transmitAddedItem(inventory, item)
@@ -199,8 +231,10 @@ function ASK.addBackpack(player, inventory, fullType, config)
         config.backpackInventory = item:getInventory()
         ASK._packedInventory = config.backpackInventory
     end
+    ASK.log(config, "Backpack container available=" .. tostring(config.backpackInventory ~= nil))
 
     if not config.equipBackpack then
+        ASK.log(config, "Backpack equip skipped: disabled in settings.")
         transmitAddedItem(inventory, item)
         return item
     end
@@ -218,7 +252,7 @@ function ASK.addBackpack(player, inventory, fullType, config)
     if ok and equipped then
         ASK.log(config, "Equipped " .. fullType .. " on the player's back.")
     else
-        ASK.log(config, "Could not equip " .. fullType .. "; leaving it in inventory.")
+        ASK.log(config, "Could not equip " .. fullType .. "; leaving it in inventory. result=" .. tostring(equipped))
     end
 
     transmitAddedItem(inventory, item)
@@ -240,6 +274,7 @@ end
 function ASK.addWorn(inventory, fullType, minimumCondition, maximumCondition)
     local item = ASK.addItem(inventory, fullType, true)
     if not item or not item.getConditionMax or not item.setCondition then
+        ASK.log(nil, "Wear skipped: item absent or condition API unavailable; type=" .. tostring(fullType))
         transmitAddedItem(inventory, item)
         return item
     end
@@ -250,7 +285,11 @@ function ASK.addWorn(inventory, fullType, minimumCondition, maximumCondition)
         local maximumRatio = clamp(numberOrDefault(maximumCondition, 0.75), minimumRatio, 1)
         local low = math.max(1, math.floor(maxCondition * minimumRatio))
         local high = math.max(low, math.floor(maxCondition * maximumRatio))
-        item:setCondition(ZombRand(low, high + 1))
+        local condition = ZombRand(low, high + 1)
+        ASK.log(nil, "Wear: type=" .. fullType .. ", maxCondition=" .. maxCondition .. ", low=" .. low .. ", high=" .. high .. ", selected=" .. condition)
+        item:setCondition(condition)
+    else
+        ASK.log(nil, "Wear skipped: non-positive maximum condition for " .. fullType)
     end
 
     transmitAddedItem(inventory, item)
@@ -260,6 +299,8 @@ end
 function ASK.addRepeated(inventory, fullType, baseAmount, multiplier)
     local amount = numberOrDefault(baseAmount, 1) * numberOrDefault(multiplier, 1)
     local count = math.max(1, math.floor(amount + 0.5))
+    ASK.log(nil, "Repeated item: type=" .. fullType .. ", base=" .. tostring(baseAmount)
+        .. ", multiplier=" .. tostring(multiplier) .. ", finalCount=" .. count)
 
     for _ = 1, count do
         ASK.addItem(inventory, fullType)
@@ -273,7 +314,11 @@ end
 
 function ASK.chance(percent)
     local normalizedPercent = clamp(numberOrDefault(percent, 0), 0, 100)
-    return normalizedPercent > 0 and ZombRand(100) < normalizedPercent
+    local roll = normalizedPercent > 0 and ZombRand(100) or nil
+    local passed = roll ~= nil and roll < normalizedPercent
+    ASK.log(nil, "Chance: requested=" .. tostring(percent) .. ", normalized=" .. normalizedPercent
+        .. ", roll(0-99)=" .. tostring(roll) .. ", passed=" .. tostring(passed))
+    return passed
 end
 
 function ASK.getProfession(player)
@@ -301,23 +346,32 @@ function ASK.getProfession(player)
 end
 
 function ASK.showPlayerMessage(player, message)
+    ASK.log(nil, "Show message: playerAvailable=" .. tostring(player ~= nil) .. ", text=" .. tostring(message))
     if not player or not message then return end
 
     if HaloTextHelper and HaloTextHelper.addGoodText then
         HaloTextHelper.addGoodText(player, message)
+        ASK.log(nil, "Message displayed through HaloTextHelper.")
         return
     end
 
     if player.Say then
         player:Say(message)
+        ASK.log(nil, "Message displayed through Say fallback.")
+    else
+        ASK.log(nil, "Message skipped: no display API available.")
     end
 end
 
 local function notifyPlayer(player, config, message)
-    if not config.showMessage then return end
+    if not config.showMessage then
+        ASK.log(config, "Notification skipped: ShowMessage disabled.")
+        return
+    end
 
     if isMultiplayerServer() and sendServerCommand then
         sendServerCommand(player, ASK.MOD_ID, ASK.COMMAND_SHOW_MESSAGE, { message = message })
+        ASK.log(config, "Notification command sent to client.")
         return
     end
 
@@ -335,9 +389,11 @@ local function resolveTier(day, thresholds)
 end
 
 function ASK.resetPlayerGrant(player)
+    ASK.log(nil, "Reset requested: playerAvailable=" .. tostring(player ~= nil))
     if not player then return false end
 
     local modData = player:getModData()
+    ASK.log(nil, "Reset grant flag: previous=" .. tostring(modData[ASK.GRANTED_KEY]))
     modData[ASK.GRANTED_KEY] = nil
     if player.transmitModData then
         player:transmitModData()
@@ -389,26 +445,37 @@ local function finishGrant(player, config, granted)
 
     local context = ASK._grantContext
     ASK.log(config, "Kit summary: tier=" .. context.tier
+        .. ", completed=" .. tostring(granted) .. ", attempted=" .. context.attempted
+        .. ", failed=" .. context.failed .. ", added=" .. #context.items
         .. ", day=" .. context.worldDay
         .. ", preset=" .. describeDifficulty(config)
         .. ", profession=" .. context.profession
         .. ", items=" .. summarizeGrantedItems())
 
-    if granted then
+    if granted and hasGrantedItems() then
         notifyPlayer(player, config, "You start with a few scavenged supplies.")
+    else
+        ASK.log(config, "Notification skipped: kit failed or no items added.")
     end
 
+    ASK.log(config, "Grant finished; clearing temporary context. Grant flag remains set, including empty/partial kits.")
     ASK.clearGrantContext()
     ASK._packedInventory = nil
 end
 
 function ASK.grantToPlayer(player, forcedTier)
-    if not player then return false end
-
     local config = ASK.getSettings()
-    if not config.enabled then return false end
+    ASK.log(config, "Grant requested: player=" .. tostring(player) .. ", forcedTier=" .. tostring(forcedTier))
+    if not player then ASK.log(config, "Grant skipped: no player."); return false end
+    if not config.enabled then ASK.log(config, "Grant skipped: mod disabled."); return false end
+    ASK.log(config, "Effective settings: preset=" .. config.difficultyPreset .. ", multiplier=" .. config.multiplier
+        .. ", thresholds=" .. table.concat(config.thresholds, ",") .. ", firearmChance=" .. config.firearmChance
+        .. ", roughItems=" .. tostring(config.roughItems) .. ", roughItemChance=" .. config.roughItemChance
+        .. ", equipBackpack=" .. tostring(config.equipBackpack) .. ", professionTweaks=" .. tostring(config.professionTweaks)
+        .. ", showMessage=" .. tostring(config.showMessage))
 
     local modData = player:getModData()
+    ASK.log(config, "Existing grant flag=" .. tostring(modData[ASK.GRANTED_KEY]))
     if modData[ASK.GRANTED_KEY] and not forcedTier then
         ASK.log(config, "Player already received a kit; skipping.")
         return false
@@ -416,8 +483,10 @@ function ASK.grantToPlayer(player, forcedTier)
 
     -- Mark first so a partial item error cannot be exploited by reconnecting.
     modData[ASK.GRANTED_KEY] = true
+    ASK.log(config, "Grant flag set before item creation to prevent duplicate grants after partial failure.")
     if player.transmitModData then
         player:transmitModData()
+        ASK.log(config, "Grant flag transmission requested.")
     end
 
     local worldHours = getGameTime():getWorldAgeHours()
@@ -428,6 +497,10 @@ function ASK.grantToPlayer(player, forcedTier)
 
     ASK.log(config, "Granting tier " .. tier .. " on world day " .. worldDay .. ".")
     ASK.beginGrantContext(config, tier, worldDay, player)
+    ASK.log(config, "Resolved kit: worldHours=" .. tostring(worldHours) .. ", day=" .. worldDay
+        .. ", tier=" .. tier .. ", profession=" .. ASK._grantContext.profession
+        .. ", inventoryAvailable=" .. tostring(inventory ~= nil) .. ", kitAvailable=" .. tostring(kit ~= nil))
+    if tier == 1 then ASK.log(config, "Tier 1 intentionally grants no items (early-world empty kit).") end
     if kit then
         local ok, errorMessage = pcall(function()
             kit(player, inventory, config)
@@ -438,6 +511,8 @@ function ASK.grantToPlayer(player, forcedTier)
             finishGrant(player, config, false)
             return false
         end
+    else
+        ASK.log(config, "No kit function available; no items can be added.")
     end
     finishGrant(player, config, true)
     return true

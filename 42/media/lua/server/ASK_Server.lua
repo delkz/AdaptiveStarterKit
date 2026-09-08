@@ -5,10 +5,12 @@ end
 
 local function onClientCommand(module, command, player, _args)
     if module ~= ASK.MOD_ID then return end
-    if not player then return end
+    ASK.log(nil, "OnClientCommand: command=" .. tostring(command) .. ", player=" .. tostring(player)
+        .. ", requestedTier=" .. tostring(_args and _args.tier))
+    if not player then ASK.log(nil, "Command ignored: no player."); return end
 
     if command == ASK.COMMAND_REQUEST_KIT then
-        ASK.grantToPlayer(player)
+        ASK.log(nil, "Server grant returned=" .. tostring(ASK.grantToPlayer(player)))
         return
     end
 
@@ -22,8 +24,11 @@ local function onClientCommand(module, command, player, _args)
     end
 
     if command == ASK.COMMAND_FORCE_KIT then
-        ASK.grantToPlayer(player, _args and _args.tier or 1)
+        ASK.log(config, "Forced server grant returned=" .. tostring(ASK.grantToPlayer(player, _args and _args.tier or 1)))
+    else
+        ASK.log(config, "Unknown command ignored: " .. tostring(command))
     end
 end
 
 Events.OnClientCommand.Add(onClientCommand)
+ASK.log(nil, "Server handler registered: OnClientCommand.")
