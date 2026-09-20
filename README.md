@@ -88,11 +88,15 @@ In the Lua/debug console, you can run:
 
 ```lua
 AdaptiveStarterKit.debugReset(getPlayer())
+AdaptiveStarterKit.debugGrantCurrent(getPlayer())
 AdaptiveStarterKit.debugGrantTier(getPlayer(), 6)
 ```
 
 `debugReset` lets the current character receive a kit again. `debugGrantTier` grants a specific tier from `1` to `6`, which is useful for checking balance, backpack packing, and debug output.
 
+The game's debug menu includes **ASK: grant current kit** on its main tab. With the mod and its Sandbox diagnostics enabled, each click grants another kit using the current world age, thresholds, profession, and other Sandbox settings. It bypasses the already-received flag without clearing it, and does not remove existing items. Tier 1 still gives no items. Multiplayer requests are resolved on the server using its current settings and world age.
+
 ## Contributing
+
 
 This mod is open source. If you have improvements, fixes, balancing changes, or compatibility updates, please open a pull request.

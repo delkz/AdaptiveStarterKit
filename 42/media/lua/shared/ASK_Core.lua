@@ -3,6 +3,7 @@ local ASK = {
     COMMAND_REQUEST_KIT = "RequestKit",
     COMMAND_RESET_KIT = "ResetKit",
     COMMAND_FORCE_KIT = "ForceKit",
+    COMMAND_FORCE_CURRENT_KIT = "ForceCurrentKit",
     COMMAND_SHOW_MESSAGE = "ShowMessage",
     GRANTED_KEY = "AdaptiveStarterKitGranted",
     KITS = {},
@@ -417,6 +418,21 @@ function ASK.debugReset(player)
     return ASK.resetPlayerGrant(player)
 end
 
+function ASK.debugGrantCurrent(player)
+    local config = ASK.getSettings()
+    if not config.debug then
+        print("[AdaptiveStarterKit] Enable Debug in Sandbox options before using test commands.")
+        return false
+    end
+
+    if isClient and isClient() and sendClientCommand then
+        sendClientCommand(player, ASK.MOD_ID, ASK.COMMAND_FORCE_CURRENT_KIT, {})
+        return true
+    end
+
+    return ASK.grantToPlayer(player, nil, true)
+end
+
 function ASK.debugGrantTier(player, tier)
     local config = ASK.getSettings()
     if not config.debug then
@@ -463,7 +479,7 @@ local function finishGrant(player, config, granted)
     ASK._packedInventory = nil
 end
 
-function ASK.grantToPlayer(player, forcedTier)
+function ASK.grantToPlayer(player, forcedTier, forceCurrent)
     local config = ASK.getSettings()
     ASK.log(config, "Grant requested: player=" .. tostring(player) .. ", forcedTier=" .. tostring(forcedTier))
     if not player then ASK.log(config, "Grant skipped: no player."); return false end
@@ -476,7 +492,7 @@ function ASK.grantToPlayer(player, forcedTier)
 
     local modData = player:getModData()
     ASK.log(config, "Existing grant flag=" .. tostring(modData[ASK.GRANTED_KEY]))
-    if modData[ASK.GRANTED_KEY] and not forcedTier then
+    if modData[ASK.GRANTED_KEY] and not forcedTier and not (forceCurrent == true and config.debug) then
         ASK.log(config, "Player already received a kit; skipping.")
         return false
     end

@@ -17,6 +17,11 @@ local function onClientCommand(module, command, player, _args)
     local config = ASK.getSettings()
     if not config.debug then return end
 
+    if command == ASK.COMMAND_FORCE_CURRENT_KIT then
+        ASK.log(config, "Forced current server grant returned=" .. tostring(ASK.grantToPlayer(player, nil, true)))
+        return
+    end
+
     if command == ASK.COMMAND_RESET_KIT then
         ASK.resetPlayerGrant(player)
         ASK.log(config, "Reset grant flag for player.")
